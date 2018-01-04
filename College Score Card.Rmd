@@ -1,0 +1,106 @@
+---
+title: "COLLEGE SCORE CARD (USA UNIVERSITIES DATA FOR 2013 - 2014)"
+author: "ISAAC OWUSU AKOWUAH"
+date: "January 1, 2018"
+output: html_document
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+
+College Score Card holds data from both private and public universities in United States of America, which is updated every year. This data helps to provide information to students and guardians seeking higher education, public, government, policy makers and stakeholders concerning tertiary education. In this project, we ask questions and then answer with this available data. \\
+
+### 1. What is the average SAT score for universities in 2013 - 2014 academic year?
+
+```{r cars, echo= TRUE, message=FALSE}
+##Importing data into R
+MERGED2013_14_PP <- read.delim("H:/github files/CollegeScorecard_Raw_Data/MERGED2013_14_PP.csv")
+##Subsetting
+new<-subset(MERGED2013_14_PP,MERGED2013_14_PP$SAT_AVG!='NULL')
+##Median
+median(as.numeric(new$SAT_AVG))
+##Box and Whisker Plot
+boxplot(as.numeric(new$SAT_AVG),horizontal=TRUE, main="Average SAT Score",col = c("blue"))
+```
+
+### 2. What is the difference in completion rate between students from low and high income family for 4 year college?
+```{r cat, message=FALSE, echo=TRUE}
+##Subsetting
+diff<-subset(MERGED2013_14_PP,LO_INC_COMP_ORIG_YR4_RT!='PrivacySuppressed' & LO_INC_COMP_ORIG_YR4_RT!='NULL' & MD_INC_COMP_ORIG_YR4_RT!='PrivacySuppressed' & MD_INC_COMP_ORIG_YR4_RT!='NULL'& HI_INC_COMP_ORIG_YR4_RT!='PrivacySuppressed'& HI_INC_COMP_ORIG_YR4_RT!='NULL')
+##Average Completion for low income students 
+a<-median(as.numeric(diff$LO_INC_COMP_ORIG_YR4_RT))
+a
+##Average Completion for high income students 
+b<-median(as.numeric(diff$HI_INC_COMP_ORIG_YR4_RT))
+b
+m=abs(a-b)
+m
+boxplot(as.numeric(diff$LO_INC_COMP_ORIG_YR4_RT),as.numeric(diff$HI_INC_COMP_ORIG_YR4_RT), main="Average Completion Rate in Low and High Income Students",names=c("Low_Income Students","High_Income Students"),col = c("red","sienna"))
+```
+
+### 3. What is the completion rate in Females and Males?
+
+```{r Mtti, message=FALSE, echo=TRUE}
+##Average in Females
+median(as.numeric(MERGED2013_14_PP$UGDS_WOMEN))
+##Average in Males
+median(as.numeric(MERGED2013_14_PP$UGDS_MEN))
+boxplot(as.numeric(diff$UGDS_WOMEN),as.numeric(diff$UGDS_MEN), main="Average Completion Rate in Females and Males",names=c("Females","Males"),col = c("red","sienna"))
+
+```
+
+### 4. How diverse is the race in the Universities?
+
+```{r pat, message=FALSE, echo=TRUE}
+##Subsetting
+div<-subset(MERGED2013_14_PP,UGDS_WHITE!='NULL'&UGDS_WHITE!='0'& UGDS_BLACK!='NULL'&UGDS_BLACK!='0'& UGDS_HISP!='NULL'&UGDS_HISP!='0'& UGDS_ASIAN!='NULL'& UGDS_ASIAN!='0'& UGDS_AIAN!='NULL'&UGDS_AIAN!='0'& UGDS_NHPI!='NULL'&UGDS_NHPI!='0'& UGDS_2MOR!='NULL'& UGDS_2MOR!='0'& UGDS_NRA!='NULL'&UGDS_NRA!='0'& UGDS_UNKN!='NULL'&UGDS_UNKN!='0')
+##Maximum race in a university
+div$max<-apply(div[,293:301],1,max)
+##Minimum race in a university
+div$min<-apply(div[,293:301],1,min)
+##Difference in maximum and minimum
+div$diff<-as.numeric(div$max)-as.numeric(div$min)
+##Maximum difference in race
+max(div$diff)
+##Row with maximum difference
+which(div$diff=='0.9752')
+##The university and city with high dominance of a specific race
+div[1481,4:5]
+##The university high and low dominance race
+div[1481,1744:1745]
+##Race and their value of race dorminance
+div[1481,293:301]
+##Subsetting universities with difference in high and low race greater the 0.5
+Divmore<-subset(div,div$diff>=0.50)
+##Number of universities in the dataset
+nrow(div)
+##Number of universities with race difference greater than 0.5
+nrow(Divmore)
+##Ratio of universities out of whole universities with difference greater than 0.5
+nrow(Divmore)/nrow(div)
+
+```
+It is noted Laredo Community College in the city of Laredo has much diversity (More of one specific race). Laredo Community College has more Hispanic of a fraction of 0.9754 and very less of Native Hawaiian/Pacific Islander, a fraction of 0.0002.It is also revealed about 74 percent of the universities have over 50
+percent difference in the minimum and maximum race of students. This means many
+universities have a more students of a specific race.
+
+
+### 5. What is the Pearson Correlation between Average SAT Score and Enrollment of 2 year university program? 
+```{r patt, message=FALSE, echo=TRUE}
+##Subsetting
+Pcor<-subset(MERGED2013_14_PP,SAT_AVG!='NULL' & ENRL_ORIG_YR2_RT!='PrivacySuppressed'&ENRL_ORIG_YR2_RT!='NULL')
+##Pearson Correlation Test
+cor(as.numeric(Pcor$SAT_AVG),as.numeric(Pcor$ENRL_ORIG_YR2_RT),method = "pearson")
+plot(as.numeric(Pcor$SAT_AVG),as.numeric(Pcor$ENRL_ORIG_YR2_RT),main = "Scatter Plot",ylab = "Enrollment into 2 year program",xlab = "SAT Average",col="blue")
+```
+
+### 6. What is the results perfoming a two sample t-test for completion in Low and High Income University?
+```{r Mtt, message=FALSE, echo=TRUE}
+t.test(as.numeric(diff$LO_INC_COMP_ORIG_YR4_RT),as.numeric(diff$HI_INC_COMP_ORIG_YR4_RT), var.equal=TRUE, paired=FALSE)
+log10(2.2*exp(-16))
+```
+
+
